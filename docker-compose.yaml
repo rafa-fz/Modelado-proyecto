@@ -10,8 +10,8 @@ services:
     restart: always
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_router01_db:/data/db
-      - ./vol1/mongodb_cluster_router01_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_router01_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_router01_config:/data/configdb
     cpus: 0.5
     mem_limit: 512m
 
@@ -21,8 +21,8 @@ services:
     command: mongos --port 27017 --configdb rs-config-server/configsvr01:27017,configsvr02:27017,configsvr03:27017 --bind_ip_all
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_router02_db:/data/db
-      - ./vol1/mongodb_cluster_router02_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_router02_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_router02_config:/data/configdb
     ports:
       - 27118:27017
     restart: always
@@ -38,8 +38,8 @@ services:
     command: mongod --port 27017 --configsvr --replSet rs-config-server
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_configsvr01_db:/data/db
-      - ./vol1/mongodb_cluster_configsvr01_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_configsvr01_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_configsvr01_config:/data/configdb
     ports:
       - 27119:27017
     restart: always
@@ -54,8 +54,8 @@ services:
     command: mongod --port 27017 --configsvr --replSet rs-config-server
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_configsvr02_db:/data/db
-      - ./vol1/mongodb_cluster_configsvr02_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_configsvr02_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_configsvr02_config:/data/configdb
     ports:
       - 27120:27017
     restart: always
@@ -70,8 +70,8 @@ services:
     command: mongod --port 27017 --configsvr --replSet rs-config-server
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_configsvr03_db:/data/db
-      - ./vol1/mongodb_cluster_configsvr03_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_configsvr03_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_configsvr03_config:/data/configdb
     ports:
       - 27121:27017
     restart: always
@@ -89,8 +89,8 @@ services:
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_shard01_a_db:/data/db
-      - ./vol1/mongodb_cluster_shard01_a_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_shard01_a_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_shard01_a_config:/data/configdb
     ports:
       - 27122:27017
     restart: always
@@ -106,8 +106,8 @@ services:
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_shard01_b_db:/data/db
-      - ./vol1/mongodb_cluster_shard01_b_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_shard01_b_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_shard01_b_config:/data/configdb
     ports:
       - 27123:27017
     restart: always
@@ -120,8 +120,8 @@ services:
     command: mongod --port 27017 --shardsvr --replSet rs-shard-01
     volumes:
       - ./scripts/scripts-1:/scripts
-      - ./vol1/mongodb_cluster_shard01_c_db:/data/db
-      - ./vol1/mongodb_cluster_shard01_c_config:/data/configdb
+      - ./MongoDB/vol1/mongodb_cluster_shard01_c_db:/data/db
+      - ./MongoDB/vol1/mongodb_cluster_shard01_c_config:/data/configdb
     ports:
       - 27124:27017
     restart: always
