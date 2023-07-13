@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Lista de Productos</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    
+    th, td {
+      border: 1px solid black;
+      padding: 8px;
+    }
+    
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1>Lista de Productos</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Imagen</th>
+        <th>ASIN</th>
+        <th>Precio</th>
+        <th>MRP</th>
+        <th>Rating</th>
+        <th>Total de Rating</th>
+        <th>Descuento</th>
+        <th>Vendedor</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Aquí se generarán las filas dinámicamente -->
+    </tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script>
+    // Realizar la solicitud para obtener la lista de productos
+    axios.get('http://localhost:5121/products')
+      .then(response => {
+        const productos = response.data;
+        const tbody = document.querySelector('tbody');
+
+        // Generar las filas de la tabla con los datos de los productos
+        productos.forEach(producto => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${producto.name}</td>
+            <td>${producto.img}</td>
+            <td>${producto.asin}</td>
+            <td>${producto.price}</td>
+            <td>${producto.mrp}</td>
+            <td>${producto.rating}</td>
+            <td>${producto.ratingTotal}</td>
+            <td>${producto.discount}</td>
+            <td>${producto.seller}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      })
+      .catch(error => {
+        console.error('Error al obtener la lista de productos:', error);
+      });
+  </script>
+</body>
+</html>
