@@ -11,9 +11,8 @@ const port = 5121;
 
 // Arreglo de puertos disponibles
 const dbURLs = [
-  // 'mongodb://localhost:27117,localhost:27118/Project'
   'mongodb://localhost:27117/Project',
-  'mongodb://localhost:27118/Project'
+  'mongodb://localhost:27118/Project',
 ];
 
 // Función para comprobar la conexión a la base de datos
@@ -80,7 +79,7 @@ app.post('/products', async (req, res) => {
 
     const newProduct = new Productos(req.body);
     const data = await newProduct.save();
-    res.json(data);
+    res.status(200).json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -95,7 +94,9 @@ app.get('/products', async (req, res) => {
       throw new Error('No se pudo establecer conexión a la base de datos');
     }
 
-    const data = await Productos.find();
+    const data = await Productos.find().sort({ _id: -1 }) // Ordenar por _id en orden descendente (últimos registros primero)
+      .limit(100); // Limitar el resultado a los últimos 100 registros
+;
     res.json(data);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -115,7 +116,7 @@ app.get('/products/:id', async (req, res) => {
     if (!data) {
       res.status(404).json({ error: 'Producto no encontrado' });
     } else {
-      res.json(data);
+      res.status(200).json(data);
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -131,11 +132,15 @@ app.put('/products/:id', async (req, res) => {
       throw new Error('No se pudo establecer conexión a la base de datos');
     }
 
-    const data = await Productos.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!data) {
+    const data = await Productos.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, shardKey: "rs-shard-01" }
+    );
+        if (!data) {
       res.status(404).json({ error: 'Producto no encontrado' });
     } else {
-      res.json({ message: 'Producto modificado correctamente' });
+      res.status(200).json({ message: 'Producto modificado correctamente' });
     }
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -143,24 +148,47 @@ app.put('/products/:id', async (req, res) => {
 });
 
 // Eliminar producto
-app.delete('/products/:id', async (req, res) => {
-  try {
-    // Verificar la conexión a la base de datos
-    const connectionResponse = await axios.get(`http://localhost:${port}/check-connection`);
-    if (connectionResponse.status !== 200) {
-      throw new Error('No se pudo establecer conexión a la base de datos');
-    }
+ app.delete('/products/:id', async (req, res) => {
+   try {
+     // Verificar la conexión a la base de datos
+     const connectionResponse = await axios.get(`http://localhost:${port}/check-connection`);
+     if (connectionResponse.status !== 200) {
+       throw new Error('No se pudo establecer conexión a la base de datos');
+     }
 
-    const data = await Productos.findByIdAndDelete(req.params.id);
-    if (!data) {
-      res.status(404).json({ error: 'Producto no encontrado' });
-    } else {
-      res.json({ message: 'Producto eliminado correctamente' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+     const data = await Productos.findByIdAndDelete({ _id: req.params.id, shardKeyField: "rs-shard-01" });
+     if (!data) {
+       res.status(404).json({ error: 'Producto no encontrado' });
+     } else {
+       res.status(200).json({ message: 'Producto eliminado correctamente' });
+     }
+   } catch (error) {
+     res.status(500).json({ error: error.message });
+   }
 });
+
+// app.delete('/products/:id', async (req, res) => {
+//   try {
+//     // Verificar la conexión a la base de datos
+//     const connectionResponse = await axios.get(`http://localhost:${port}/check-connection`);
+//     if (connectionResponse.status !== 200) {
+//       throw new Error('No se pudo establecer conexión a la base de datos');
+//     }
+
+//     const data = await Productos.findByIdAndDelete(req.params.id, req.body);
+    
+//     if (!data) {
+//       res.status(404).json({ error: 'Producto no encontrado' });
+//     } else {
+//       res.status(200).json({ message: 'Producto eliminado correctamente' });
+//     }
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
+
+
+
 
 app.listen(port, () => {
   console.log(`Servidor en funcionamiento en el puerto ${port}`);

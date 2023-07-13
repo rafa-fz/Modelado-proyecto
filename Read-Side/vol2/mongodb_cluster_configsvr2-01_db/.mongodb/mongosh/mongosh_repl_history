@@ -1,0 +1,2 @@
+exit
+rs.initiate({_id: "rs-config-server2", configsvr: true, version: 1, members: [ { _id: 0, host : 'configsvr2-01:27017' }, { _id: 1, host : 'configsvr2-02:27017' } ] })

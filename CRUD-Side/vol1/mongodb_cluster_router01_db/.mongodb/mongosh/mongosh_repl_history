@@ -1,3 +1,5 @@
+db.products.getShardDistribution()
+use Project
 sh.status()
 db.adminCommand( { shardCollection: "Project.products", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
 sh.enableSharding("Project")

@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <script src="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css"></script>
+  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.min.css">
+  
+  <!-- Agregar Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
   <title>Lista de Productos</title>
   <style>
     table {
@@ -19,54 +25,94 @@
   </style>
 </head>
 <body>
-  <h1>Lista de Productos</h1>
-  <table>
+  <h1 class="text-center">Lista de Productos</h1>
+
+  <table id="productTable" class="table table-striped table-bordered">
     <thead>
       <tr>
         <th>Nombre</th>
         <th>Imagen</th>
-        <th>ASIN</th>
         <th>Precio</th>
         <th>MRP</th>
         <th>Rating</th>
         <th>Total de Rating</th>
         <th>Descuento</th>
         <th>Vendedor</th>
+        <th>Acciones</th>
       </tr>
     </thead>
-    <tbody>
-      <!-- Aquí se generarán las filas dinámicamente -->
-    </tbody>
+    <tbody></tbody>
   </table>
-
+ 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.datatables.net/1.10.25/js/jquery.dataTables.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- Agregar Bootstrap JS -->
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
   <script>
-    // Realizar la solicitud para obtener la lista de productos
-    axios.get('http://localhost:5121/products')
-      .then(response => {
-        const productos = response.data;
-        const tbody = document.querySelector('tbody');
-
-        // Generar las filas de la tabla con los datos de los productos
-        productos.forEach(producto => {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td>${producto.name}</td>
-            <td>${producto.img}</td>
-            <td>${producto.asin}</td>
-            <td>${producto.price}</td>
-            <td>${producto.mrp}</td>
-            <td>${producto.rating}</td>
-            <td>${producto.ratingTotal}</td>
-            <td>${producto.discount}</td>
-            <td>${producto.seller}</td>
-          `;
-          tbody.appendChild(row);
-        });
-      })
-      .catch(error => {
-        console.error('Error al obtener la lista de productos:', error);
+    $(document).ready(function() {
+      $('#productTable').DataTable({
+        ajax: {
+          url: 'http://localhost:5121/products',
+          dataSrc: '',
+          error: function(xhr, errorType, exception) {
+            // Manejo del error
+            console.log('Error al cargar los datos:', exception);
+          }
+        },
+        pageLength: 500,
+        columns: [
+          { title: 'Nombre', data: 'name' },
+          {
+            title: 'Imagen',
+            render: function(data, type, row) {
+              if (type === 'display') {
+                const images = row.img.split(';');
+                const firstImage = images[0].trim();
+                return `<img src="${firstImage}" alt="Imagen del producto" width="100" height="100">`;
+              }
+              return data;
+            }
+          },
+          { title: 'Precio', data: 'price' },
+          { title: 'MRP', data: 'mrp' },
+          { title: 'Rating', data: 'rating' },
+          { title: 'Total de Rating', data: 'ratingTotal' },
+          { title: 'Descuento', data: 'discount' },
+          { title: 'Vendedor', data: 'seller' },
+          {
+            title: 'Acciones',
+            render: function(data, type, row) {
+              if (type === 'display') {
+                return `
+                  <button class="btn btn-danger" onclick="eliminarProducto('${row._id}')">Eliminar</button>
+                  <button class="btn btn-primary" onclick="modificarProducto('${row._id}')">Modificar</button>
+                `;
+              }
+              return data;
+            }
+          }
+        ]
       });
+    });
+
+    function eliminarProducto(id) {
+      // Realizar la solicitud para eliminar el producto con el ID especificado
+      axios.delete(`http://localhost:5121/products/${id}`)
+        .then(response => {
+          console.log(`Producto con ID ${id} eliminado`);
+          // Recargar los datos en la tabla
+          $('#productTable').DataTable().ajax.reload();
+        })
+        .catch(error => {
+          console.error(`Error al eliminar el producto con ID ${id}`, error);
+        });
+    }
+
+    function modificarProducto(id) {
+      // Redirigir a la página de edición con el ID del producto en la URL
+      window.location.href = `http://localhost:5501/editar.html?id=${id}`;
+    }
   </script>
 </body>
 </html>

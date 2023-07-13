@@ -1,20 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
   <title>Agregar Producto</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    form {
+      max-width: 400px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      margin-bottom: 15px;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
 </head>
 <body>
   <h1>Agregar Producto</h1>
 
   <form id="productForm">
     <label for="name">Nombre:</label>
-    <input type="text" id="name" name="name" required><br>
+    <input type="text" id="name" name="name" required>
+
+    <label for="img">Imagen:</label>
+    <input type="text" id="img" name="img" required>
 
     <label for="price">Precio:</label>
-    <input type="number" step="0.01" id="price" name="price" required><br>
+    <input type="number" step="0.01" id="price" name="price" required>
+
+    <label for="mrp">MRP:</label>
+    <input type="number" step="0.01" id="mrp" name="mrp" required>
+
+    <label for="rating">Rating:</label>
+    <input type="number" step="0.01" id="rating" name="rating" required>
+
+    <label for="ratingTotal">Total de Rating:</label>
+    <input type="number" id="ratingTotal" name="ratingTotal" required>
 
     <label for="discount">Descuento:</label>
-    <input type="number" step="0.01" id="discount" name="discount" required><br>
+    <input type="number" step="0.01" id="discount" name="discount" required>
+
+    <label for="seller">Vendedor:</label>
+    <input type="text" id="seller" name="seller" required>
 
     <button type="submit">Agregar</button>
   </form>
@@ -25,10 +92,16 @@
 
       const form = event.target;
       const name = form.elements['name'].value;
+      const img = form.elements['img'].value;
+      const asin = form.elements['asin'].value;
       const price = form.elements['price'].value;
+      const mrp = form.elements['mrp'].value;
+      const rating = form.elements['rating'].value;
+      const ratingTotal = form.elements['ratingTotal'].value;
       const discount = form.elements['discount'].value;
+      const seller = form.elements['seller'].value;
 
-      const queryString = `name=${encodeURIComponent(name)}&price=${encodeURIComponent(price)}&discount=${encodeURIComponent(discount)}`;
+      const queryString = `name=${encodeURIComponent(name)}&img=${encodeURIComponent(img)}&asin=${encodeURIComponent(asin)}&price=${encodeURIComponent(price)}&mrp=${encodeURIComponent(mrp)}&rating=${encodeURIComponent(rating)}&ratingTotal=${encodeURIComponent(ratingTotal)}&discount=${encodeURIComponent(discount)}&seller=${encodeURIComponent(seller)}`;
 
       try {
         const response = await fetch(`http://localhost:5121/products?${queryString}`);
@@ -42,6 +115,9 @@
       } catch (error) {
         console.error(error);
       }
+
+
+      
     });
   </script>
 </body>
