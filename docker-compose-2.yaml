@@ -1,0 +1,207 @@
+version: "3"
+services:
+  # Router
+  router2-01:
+    image: mongo
+    container_name: router2-01
+    command: mongos --port 27017 --configdb rs-config-server2/configsvr2-01:27017,configsvr2-02:27017 --bind_ip_all
+    ports:
+      - 27217:27017
+    restart: always
+    volumes:
+      - ./Read-Side/scripts-2:/scripts
+      - ./Read-Side/vol2/mongodb_cluster_router2-01_db:/data/db
+      - ./Read-Side/vol2/mongodb_cluster_router2-01_config:/data/configdb
+    networks:
+      - mongo-cluster
+    cpus: 0.5
+    mem_limit: 512m
+
+  # router2-02:
+  #   image: mongo
+  #   container_name: router2-02
+  #   command: mongos --port 27017 --configdb rs-config-server2/configsvr2-01:27017,configsvr2-02:27017 --bind_ip_all
+  #   volumes:
+  #     - ./Read-Side/scripts2-2:/scripts
+  #     - ./Read-Side/vol2/mongodb_cluster_router2-02_db:/data/db
+  #     - ./Read-Side/vol2/mongodb_cluster_router2-02_config:/data/configdb
+  #   ports:
+  #     - 27218:27017
+  #   restart: always
+  #   cpus: 0.5
+  #   mem_limit: 512m
+  #   links:
+  #     - router01
+
+  # Config Servers
+  configsvr2-01:
+    image: mongo
+    container_name: mongo-config2-01
+    command: mongod --port 27017 --configsvr --replSet rs-config-server2
+    volumes:
+      - ./scripts/scripts-2:/scripts
+      - ./Read-Side/vol2/mongodb_cluster_configsvr2-01_db:/data/db
+      - ./Read-Side/vol2/mongodb_cluster_configsvr2-01_config:/data/configdb
+    ports:
+      - 27219:27017
+    restart: always
+    networks:
+      - mongo-cluster
+    cpus: 0.5
+    mem_limit: 512m
+    links:
+      - shard2-01-a
+
+  configsvr2-02:
+    image: mongo
+    container_name: mongo-config2-02
+    command: mongod --port 27017 --configsvr --replSet rs-config-server2
+    volumes:
+      - ./scripts/scripts-2:/scripts
+      - ./Read-Side/vol2//MongoDBmongodb_cluster_configsvr2-02_db:/data/db
+      - ./Read-Side/vol2/mongodb_cluster_configsvr2-02_config:/data/configdb
+    ports:
+      - 27220:27017
+    restart: always
+    networks:
+      - mongo-cluster
+    cpus: 0.5
+    mem_limit: 512m
+    links:
+      - configsvr2-01
+
+#   configsvr03:
+#     image: mongo
+#     container_name: mongo-config-03
+#     command: mongod --port 27017 --configsvr --replSet rs-config-server
+#     volumes:
+#       - ./scripts/scripts-2:/scripts
+#       - ./MongoDB/vol2/mongodb_cluster_configsvr03_db:/data/db
+#       - ./MongoDB/vol2/mongodb_cluster_configsvr03_config:/data/configdb
+#     ports:
+#       - 27221:27017
+#     restart: always
+#     cpus: 0.5
+#     mem_limit: 512m
+#     links:
+#       - configsvr02
+
+ ## Shards
+ ## Shards 01
+
+  shard2-01-a:
+    image: mongo
+    container_name: shard2-01-node-a
+    command: mongod --port 27017 --shardsvr --replSet rs-shard2-01
+    volumes:
+      - ./scripts-2/scripts-2:/scripts
+      - ./Read-Side/vol2/mongodb_cluster_shard2-01_a_db:/data/db
+      - ./Read-Side/vol2/mongodb_cluster_shard2-01_a_config:/data/configdb
+    ports:
+      - 27222:27017
+    restart: always
+    networks:
+      - mongo-cluster
+    cpus: 0.5
+    mem_limit: 512m
+    links:
+      - shard2-01-b
+      - shard2-01-c
+
+  shard2-01-b:
+    image: mongo
+    container_name: shard2-01-node-b
+    command: mongod --port 27017 --shardsvr --replSet rs-shard2-01
+    volumes:
+      - ./Read-Side/scripts-2:/scripts
+      - ./Read-Side/vol2/mongodb_cluster_shard2-01_b_db:/data/db
+      - ./Read-Side/vol2/mongodb_cluster_shard2-01_b_config:/data/configdb
+    ports:
+      - 27223:27017
+    restart: always
+    networks:
+      - mongo-cluster
+    cpus: 0.5
+    mem_limit: 512m
+
+  shard2-01-c:
+    image: mongo
+    container_name: shard2-01-node-c
+    command: mongod --port 27017 --shardsvr --replSet rs-shard2-01
+    volumes:
+      - ./Read-Side/scripts-2:/scripts
+      - ./Read-Side/vol2/mongodb_cluster_shard2-01_c_db:/data/db
+      - ./Read-Side/vol2/mongodb_cluster_shard2-01_c_config:/data/configdb
+    ports:
+      - 27224:27017
+    restart: always
+    networks:
+      - mongo-cluster
+    cpus: 0.5
+    mem_limit: 512m
+
+volumes:
+  mongodb_cluster_router2-01_db:
+  mongodb_cluster_router2-01_config:
+
+  # mongodb_cluster_router2-02_db:
+  # mongodb_cluster_router2-02_config:
+
+  mongodb_cluster_configsvr2-01_db:
+  mongodb_cluster_configsvr2-01_config:
+
+  mongodb_cluster_configsvr2-02_db:
+  mongodb_cluster_configsvr2-02_config:
+
+  # mongodb_cluster_configsvr03_db:
+  # mongodb_cluster_configsvr03_config:
+
+  mongodb_cluster_shard2-01_a_db:
+  mongodb_cluster_shard2-01_a_config:
+
+  mongodb_cluster_shard2-01_b_db:
+  mongodb_cluster_shard2-01_b_config:
+
+  mongodb_cluster_shard2-01_c_db:
+  mongodb_cluster_shard2-01_c_config:
+
+networks:
+    mongo-cluster:
+
+
+
+# docker-compose exec configsvr2-01 sh -c "mongosh < /scripts/init-configserver.js"
+# docker-compose exec shard2-01-a sh -c "mongosh < /Read-Side/scripts-2/init-shard01.js"
+
+# docker-compose exec router2-01 sh -c "mongosh < /Read-Side/scripts-2/init-router.js"
+
+# docker-compose exec router2-01 mongosh --port 27017
+
+#### - Enable sharding for database `Project`
+# sh.enableSharding("Salida")
+
+#### - Setup shardingKey for collection `products`
+# db.adminCommand( { shardCollection: "Salida.products", key: { oemNumber: "hashed", zipCode: 1, supplierId: 1 } } )
+
+# Connect MongoDB Compass
+# mongodb://127.0.0.1:27117,127.0.0.1:27118
+# mongodb://localhost:27117,localhost:27118/
+
+# verificar
+# docker-compose exec router2-01 mongosh --port 27017
+# sh.status()
+
+# docker exec -it shard2-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+
+# docker-compose exec router2-01 mongosh --port 27017
+# use Project
+# db.stats()
+# db.products.getShardDistribution()
+
+#more
+# docker exec -it mongo-config2-01 bash -c "echo 'rs.status()' | mongosh --port 27017"
+
+# docker exec -it shard2-01-node-a bash -c "echo 'rs.help()' | mongosh --port 27017"
+# docker exec -it shard2-01-node-a bash -c "echo 'rs.status()' | mongosh --port 27017"
+# docker exec -it shard2-01-node-a bash -c "echo 'rs.printReplicationInfo()' | mongosh --port 27017"
+# docker exec -it shard2-01-node-a bash -c "echo 'rs.printSlaveReplicationInfo()' | mongosh --port 27017"
